@@ -1,3 +1,5 @@
+// early-access/index.js
+
 const { TableClient } = require('@azure/data-tables')
 const { EmailClient } = require('@azure/communication-email')
 const crypto = require('crypto')
@@ -10,6 +12,7 @@ const VALID_TEAM_COUNTS = ['1-5', '6-10', '11-20', '20+']
 const MAX_BODY_BYTES = 8 * 1024 // 8 KB
 const EMAIL_RETRY_ATTEMPTS = 2
 const EMAIL_RETRY_DELAY_MS = 1000
+const EMAIL_POLL_TIMEOUT_MS = 30 * 1000 // 30s max wait for ACS poller
 
 // Rate limit: per-IP sliding window (in-memory, resets on cold start)
 const rateLimitMap = new Map()
@@ -191,10 +194,16 @@ async function sendNotification(entity, logger) {
   let lastError
   for (let attempt = 1; attempt <= EMAIL_RETRY_ATTEMPTS; attempt++) {
     try {
+      logger.info(`Email send starting for ${entity.rowKey} (attempt ${attempt}/${EMAIL_RETRY_ATTEMPTS})`)
       const poller = await emailClient.beginSend(message)
-      await poller.pollUntilDone()
-      logger.info(`Email notification sent for ${entity.rowKey}`)
-      return
+      const result = await poller.pollUntilDone(EMAIL_POLL_TIMEOUT_MS)
+
+      if (result.status === 'Succeeded') {
+        logger.info(`Email send succeeded for ${entity.rowKey}`)
+        return
+      }
+
+      throw new Error(`Email finished with status: ${result.status}`)
     } catch (err) {
       lastError = err
       logger.warn(`Email attempt ${attempt}/${EMAIL_RETRY_ATTEMPTS} failed for ${entity.rowKey}: ${err.message}`)
@@ -204,7 +213,7 @@ async function sendNotification(entity, logger) {
     }
   }
 
-  logger.error(`Email notification failed after ${EMAIL_RETRY_ATTEMPTS} attempts for ${entity.rowKey}: ${lastError.message}`)
+  logger.error(`Email send failed after ${EMAIL_RETRY_ATTEMPTS} attempts for ${entity.rowKey}: ${lastError.message}`)
 }
 
 function escapeHtml(str) {
@@ -227,6 +236,8 @@ const NO_CACHE_HEADERS = {
 }
 
 module.exports = async function (context, req) {
+  context.log.info('Early access request received')
+
   // --- Origin check (skip in local dev where origin may be localhost) ---
   const origin = req.headers.origin
   if (origin && !ALLOWED_ORIGINS.includes(origin) && !origin.startsWith('http://localhost')) {
@@ -279,7 +290,7 @@ module.exports = async function (context, req) {
     context.res = {
       status: 400,
       headers: NO_CACHE_HEADERS,
-      body: { error: 'Validation failed' },
+      body: { error: 'Validation failed', details: errors },
     }
     return
   }
@@ -297,13 +308,16 @@ module.exports = async function (context, req) {
   // --- Store and notify ---
   try {
     const entity = await storeLead(body)
-    context.log.info(`Lead stored: ${entity.rowKey} (${entity.clubName})`)
+    context.log.info(`Lead stored successfully: ${entity.rowKey}`)
 
-    // Email with retry — don't block the response
-    sendNotification(entity, context.log).catch((err) => {
-      context.log.error('Unhandled email error:', err.message)
-    })
+    // Await email send — runtime may terminate if left as fire-and-forget
+    try {
+      await sendNotification(entity, context.log)
+    } catch (err) {
+      context.log.error(`Email send failed for ${entity.rowKey}: ${err.message}`)
+    }
 
+    context.log.info(`Request completed successfully: ${entity.rowKey}`)
     context.res = {
       status: 200,
       headers: NO_CACHE_HEADERS,
