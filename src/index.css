@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #0F2744;
+  --color-navy-light: #1a3a5c;
+  --color-navy-dark: #091a30;
+  --color-accent: #43B047;
+  --color-accent-dark: #3a9a3e;
+  --color-accent-light: #5bc45f;
+  --color-surface: #f8fafb;
+  --color-surface-raised: #ffffff;
+  --color-border: #e8ecf0;
+  --color-border-subtle: #f0f2f4;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #1a1a2e;
+}
+
+/* Subtle grid background pattern */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(15, 39, 68, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 39, 68, 0.03) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* Radial glow for hero / CTA sections */
+.glow-accent {
+  background: radial-gradient(600px circle at 50% 0%, rgba(67, 176, 71, 0.08), transparent 70%);
+}
+
+.glow-navy {
+  background: radial-gradient(800px circle at 50% 100%, rgba(15, 39, 68, 0.06), transparent 70%);
+}
+
+/* Gradient text utility */
+.text-gradient {
+  background: linear-gradient(135deg, #43B047 0%, #2d8a31 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card hover lift */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(15, 39, 68, 0.08);
+}
+
+/* Smooth border glow on hover */
+.border-glow {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.border-glow:hover {
+  border-color: rgba(67, 176, 71, 0.3);
+  box-shadow: 0 0 0 1px rgba(67, 176, 71, 0.1);
+}
+
+/* Button press effect */
+.btn-press:active {
+  transform: scale(0.98);
+}
