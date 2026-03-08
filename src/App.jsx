@@ -26,9 +26,31 @@ export default function App() {
   const isPrivacy = path === '/privacy'
 
   useEffect(() => {
-    const canonical = document.querySelector('link[rel="canonical"]')
-    if (canonical) {
-      canonical.href = isPrivacy ? 'https://matchdayos.com/privacy' : 'https://matchdayos.com'
+    const meta = {
+      title: isPrivacy
+        ? 'Privacy Policy – MatchdayOS'
+        : 'MatchdayOS – The Operating System for Grassroots Football Clubs',
+      description: isPrivacy
+        ? 'How MatchdayOS collects, stores and processes your data. UK GDPR compliant.'
+        : 'Automate fixtures, simplify registrations and reduce admin for volunteer-run youth football clubs. MatchdayOS is the all-in-one platform for grassroots football operations.',
+      url: isPrivacy ? 'https://matchdayos.com/privacy' : 'https://matchdayos.com',
+    }
+
+    document.title = meta.title
+
+    const updates = {
+      'meta[name="description"]': { attr: 'content', value: meta.description },
+      'link[rel="canonical"]': { attr: 'href', value: meta.url },
+      'meta[property="og:title"]': { attr: 'content', value: meta.title },
+      'meta[property="og:description"]': { attr: 'content', value: meta.description },
+      'meta[property="og:url"]': { attr: 'content', value: meta.url },
+      'meta[name="twitter:title"]': { attr: 'content', value: meta.title },
+      'meta[name="twitter:description"]': { attr: 'content', value: meta.description },
+    }
+
+    for (const [selector, { attr, value }] of Object.entries(updates)) {
+      const el = document.querySelector(selector)
+      if (el) el.setAttribute(attr, value)
     }
   }, [isPrivacy])
 

@@ -11,10 +11,8 @@
     "Cross-Origin-Embedder-Policy": "require-corp",
     "X-Powered-By": ""
   },
-  "responseOverrides": {
-    "404": {
-      "rewrite": "/index.html",
-      "statusCode": 200
-    }
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*", "/fonts/*", "/api/*", "/.well-known/*", "/favicon.png", "/apple-touch-icon.png", "/og-image.png", "/robots.txt", "/sitemap.xml"]
   }
 }
