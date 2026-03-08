@@ -63,7 +63,7 @@ export default function Pricing() {
                 <ul className="space-y-3">
                   {tier.features.map((feature) => (
                     <li key={feature} className="flex items-center gap-2.5 text-[13px] text-gray-600">
-                      <svg className="w-4 h-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <svg className="w-4 h-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
                       {feature}
@@ -73,7 +73,7 @@ export default function Pricing() {
               </div>
 
               <a
-                href="#early-access"
+                href="/#early-access"
                 className={`mt-8 block text-center text-[13px] font-semibold py-3 rounded-xl transition-all btn-press ${
                   tier.popular
                     ? 'bg-accent hover:bg-accent-dark text-white shadow-[0_1px_2px_rgba(67,176,71,0.3)]'
@@ -87,7 +87,7 @@ export default function Pricing() {
         </div>
 
         <p className="mt-8 text-center text-[13px] text-gray-400">
-          All plans include a 14-day free trial. No credit card required.
+          All plans include a 14-day free trial. No credit card required. All prices exclude VAT.
         </p>
       </div>
     </section>

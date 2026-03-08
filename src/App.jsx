@@ -21,20 +21,54 @@ function usePath() {
   return path
 }
 
+function NotFound() {
+  return (
+    <section className="pt-28 pb-16 sm:pt-36 sm:pb-24 text-center">
+      <div className="max-w-md mx-auto px-4">
+        <h1 className="text-6xl font-extrabold text-navy">404</h1>
+        <p className="mt-4 text-lg text-gray-500">Page not found</p>
+        <a
+          href="/"
+          className="mt-8 inline-flex items-center gap-2 bg-navy hover:bg-navy-light text-white font-semibold px-6 py-3 rounded-xl text-[15px] transition-all btn-press"
+        >
+          Back to home
+        </a>
+      </div>
+    </section>
+  )
+}
+
+function matchRoute(path) {
+  const normalised = path.replace(/\/+$/, '').toLowerCase() || '/'
+  if (normalised === '/') return 'home'
+  if (normalised === '/privacy') return 'privacy'
+  return 'notFound'
+}
+
 export default function App() {
   const path = usePath()
-  const isPrivacy = path === '/privacy'
+  const route = matchRoute(path)
 
   useEffect(() => {
-    const meta = {
-      title: isPrivacy
-        ? 'Privacy Policy – MatchdayOS'
-        : 'MatchdayOS – The Operating System for Grassroots Football Clubs',
-      description: isPrivacy
-        ? 'How MatchdayOS collects, stores and processes your data. UK GDPR compliant.'
-        : 'Automate fixtures, simplify registrations and reduce admin for volunteer-run youth football clubs. MatchdayOS is the all-in-one platform for grassroots football operations.',
-      url: isPrivacy ? 'https://matchdayos.com/privacy' : 'https://matchdayos.com',
+    const pageMeta = {
+      home: {
+        title: 'MatchdayOS – The Operating System for Grassroots Football Clubs',
+        description: 'Automate fixtures, simplify registrations and reduce admin for volunteer-run youth football clubs. MatchdayOS is the all-in-one platform for grassroots football operations.',
+        url: 'https://matchdayos.com',
+      },
+      privacy: {
+        title: 'Privacy Policy – MatchdayOS',
+        description: 'How MatchdayOS collects, stores and processes your data. UK GDPR compliant.',
+        url: 'https://matchdayos.com/privacy',
+      },
+      notFound: {
+        title: 'Page Not Found – MatchdayOS',
+        description: 'The page you were looking for does not exist.',
+        url: 'https://matchdayos.com',
+      },
     }
+
+    const meta = pageMeta[route] || pageMeta.notFound
 
     document.title = meta.title
 
@@ -52,7 +86,12 @@ export default function App() {
       const el = document.querySelector(selector)
       if (el) el.setAttribute(attr, value)
     }
-  }, [isPrivacy])
+
+    const robotsMeta = document.querySelector('meta[name="robots"]')
+    if (robotsMeta) {
+      robotsMeta.setAttribute('content', route === 'notFound' ? 'noindex' : 'index, follow')
+    }
+  }, [route])
 
   return (
     <>
@@ -61,8 +100,10 @@ export default function App() {
       </a>
       <Navbar />
       <main id="main-content" className="bg-white text-gray-900">
-        {isPrivacy ? (
+        {route === 'privacy' ? (
           <PrivacyPolicy />
+        ) : route === 'notFound' ? (
+          <NotFound />
         ) : (
           <>
             <Hero />

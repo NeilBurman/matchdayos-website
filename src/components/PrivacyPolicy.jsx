@@ -3,14 +3,13 @@ export default function PrivacyPolicy() {
     <section className="pt-28 pb-16 sm:pt-36 sm:pb-24">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <a
-          href="#"
-          onClick={(e) => { e.preventDefault(); window.history.back() }}
+          href="/"
           className="inline-flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-navy transition-colors mb-8"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
           </svg>
-          Back
+          Back to home
         </a>
 
         <h1 className="text-3xl sm:text-4xl font-bold text-navy tracking-tight">Privacy Policy</h1>

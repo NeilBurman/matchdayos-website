@@ -14,6 +14,14 @@ const EMAIL_RETRY_ATTEMPTS = 2
 const EMAIL_RETRY_DELAY_MS = 1000
 const EMAIL_POLL_TIMEOUT_MS = 30 * 1000 // 30s max wait for ACS poller
 
+// ---------------------------------------------------------------------------
+// Startup validation — fail fast on missing critical config
+// ---------------------------------------------------------------------------
+
+if (!process.env.STORAGE_CONNECTION_STRING) {
+  throw new Error('STORAGE_CONNECTION_STRING environment variable is not configured')
+}
+
 // Rate limit: per-IP sliding window (in-memory, resets on cold start)
 const rateLimitMap = new Map()
 const RATE_LIMIT_WINDOW_MS = 60 * 1000 // 1 minute
@@ -24,6 +32,7 @@ const recentEmails = new Map()
 const DUPLICATE_COOLDOWN_MS = 60 * 1000 // 1 minute
 
 // Stricter email regex — requires 2+ char TLD, no consecutive dots
+// NOTE: Keep in sync with src/components/EarlyAccess.jsx EMAIL_REGEX
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/
 
 // ---------------------------------------------------------------------------
@@ -90,6 +99,8 @@ function validate(body) {
 
   if (!body.email || typeof body.email !== 'string' || !body.email.trim()) {
     errors.push('email is required')
+  } else if (body.email.trim().length > 254) {
+    errors.push('email must be 254 characters or fewer')
   } else if (!EMAIL_REGEX.test(body.email.trim())) {
     errors.push('email must be a valid email address')
   }
@@ -114,12 +125,7 @@ function validate(body) {
 // ---------------------------------------------------------------------------
 
 async function storeLead(body) {
-  const connectionString = process.env.STORAGE_CONNECTION_STRING
-  if (!connectionString) {
-    throw new Error('STORAGE_CONNECTION_STRING is not configured')
-  }
-
-  const client = TableClient.fromConnectionString(connectionString, 'EarlyAccessLeads')
+  const client = TableClient.fromConnectionString(process.env.STORAGE_CONNECTION_STRING, 'EarlyAccessLeads')
   const now = new Date()
 
   const entity = {
@@ -206,14 +212,14 @@ async function sendNotification(entity, logger) {
       throw new Error(`Email finished with status: ${result.status}`)
     } catch (err) {
       lastError = err
-      logger.warn(`Email attempt ${attempt}/${EMAIL_RETRY_ATTEMPTS} failed for ${entity.rowKey}: ${err.message}`)
+      logger.warn(`Email attempt ${attempt}/${EMAIL_RETRY_ATTEMPTS} failed for ${entity.rowKey}: ${err.message}`, err.stack)
       if (attempt < EMAIL_RETRY_ATTEMPTS) {
         await sleep(EMAIL_RETRY_DELAY_MS * attempt)
       }
     }
   }
 
-  logger.error(`Email send failed after ${EMAIL_RETRY_ATTEMPTS} attempts for ${entity.rowKey}: ${lastError.message}`)
+  logger.error(`Email send failed after ${EMAIL_RETRY_ATTEMPTS} attempts for ${entity.rowKey}: ${lastError.message}`, lastError.stack)
 }
 
 function escapeHtml(str) {
@@ -314,7 +320,7 @@ module.exports = async function (context, req) {
     try {
       await sendNotification(entity, context.log)
     } catch (err) {
-      context.log.error(`Email send failed for ${entity.rowKey}: ${err.message}`)
+      context.log.error(`Email send failed for ${entity.rowKey}: ${err.message}`, err.stack)
     }
 
     context.log.info(`Request completed successfully: ${entity.rowKey}`)
@@ -324,7 +330,7 @@ module.exports = async function (context, req) {
       body: { success: true, message: 'Thank you for registering your interest.' },
     }
   } catch (err) {
-    context.log.error('Failed to store lead:', err.message)
+    context.log.error(`Failed to store lead: ${err.message}`, err.stack)
     context.res = {
       status: 500,
       headers: NO_CACHE_HEADERS,

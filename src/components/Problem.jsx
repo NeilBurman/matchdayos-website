@@ -38,14 +38,14 @@ export default function Problem() {
         </div>
 
         {/* Problem cards — numbered list style */}
-        <div className="mt-14 grid sm:grid-cols-2 gap-4 sm:gap-5">
+        <ol className="mt-14 grid sm:grid-cols-2 gap-4 sm:gap-5 list-none p-0 m-0">
           {problems.map((item) => (
-            <div
+            <li
               key={item.number}
               className="group relative bg-white rounded-xl p-6 sm:p-7 border border-border hover:border-red-200 transition-all card-hover"
             >
               <div className="flex items-start gap-4">
-                <span className="shrink-0 text-[13px] font-mono font-semibold text-red-400/70 bg-red-50 w-8 h-8 rounded-lg flex items-center justify-center">
+                <span aria-hidden="true" className="shrink-0 text-[13px] font-mono font-semibold text-red-400/70 bg-red-50 w-8 h-8 rounded-lg flex items-center justify-center">
                   {item.number}
                 </span>
                 <div>
@@ -53,9 +53,9 @@ export default function Problem() {
                   <p className="mt-1.5 text-[14px] text-gray-500 leading-relaxed">{item.description}</p>
                 </div>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   )

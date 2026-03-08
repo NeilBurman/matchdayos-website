@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 const FORM_ENDPOINT = '/api/early-access'
+const SUBMIT_TIMEOUT_MS = 10_000 // 10s — abort fetch if server doesn't respond
 
 const TEAM_OPTIONS = [
   { value: '', label: 'Select range' },
@@ -13,6 +14,7 @@ const TEAM_OPTIONS = [
 const initialForm = { name: '', clubName: '', email: '', teamCount: '', message: '', consent: false }
 
 // Stricter email: requires 2+ char TLD, no consecutive dots
+// NOTE: Keep in sync with api/early-access/index.js EMAIL_REGEX
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/
 
 function validate(form) {
@@ -54,7 +56,7 @@ export default function EarlyAccess() {
     try {
       const { consent: _consent, ...payload } = form
       const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 10000)
+      const timeout = setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS)
       const res = await fetch(FORM_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -138,6 +140,7 @@ export default function EarlyAccess() {
                       id="ea-name"
                       name="name"
                       type="text"
+                      required
                       autoComplete="name"
                       placeholder="e.g. Sarah Jones"
                       value={form.name}
@@ -155,6 +158,7 @@ export default function EarlyAccess() {
                       id="ea-club"
                       name="clubName"
                       type="text"
+                      required
                       autoComplete="organization"
                       placeholder="e.g. Ringmer Rovers FC"
                       value={form.clubName}
@@ -176,6 +180,7 @@ export default function EarlyAccess() {
                       id="ea-email"
                       name="email"
                       type="email"
+                      required
                       autoComplete="email"
                       placeholder="you@club.co.uk"
                       value={form.email}
@@ -192,13 +197,14 @@ export default function EarlyAccess() {
                     <select
                       id="ea-teams"
                       name="teamCount"
+                      required
                       value={form.teamCount}
                       onChange={handleChange}
                       aria-describedby={errors.teamCount ? 'ea-teams-error' : undefined}
                       className={`${inputBase} ${!form.teamCount ? 'text-gray-500' : ''} ${errors.teamCount ? 'border-red-400/60' : 'border-white/10 focus:border-accent/50'}`}
                     >
                       {TEAM_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value} className="bg-navy text-white">
+                        <option key={opt.value} value={opt.value} disabled={opt.value === ''} className="bg-navy text-white">
                           {opt.label}
                         </option>
                       ))}
