@@ -30,9 +30,9 @@ export default function Navbar() {
   }, [mobileOpen])
 
   const links = [
-    { label: 'Features', href: '#features' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'Early Access', href: '#early-access' },
+    { label: 'Features', href: '/#features' },
+    { label: 'Pricing', href: '/#pricing' },
+    { label: 'Early Access', href: '/#early-access' },
   ]
 
   return (
@@ -66,7 +66,7 @@ export default function Navbar() {
             ))}
             <div className="ml-3 pl-3 border-l border-border">
               <a
-                href="#early-access"
+                href="/#early-access"
                 className="bg-navy hover:bg-navy-light text-white text-[13px] font-medium px-4 py-2 rounded-lg transition-all btn-press inline-flex items-center gap-1.5"
               >
                 Request Early Access
@@ -109,7 +109,7 @@ export default function Navbar() {
             ))}
             <div className="pt-2">
               <a
-                href="#early-access"
+                href="/#early-access"
                 onClick={() => setMobileOpen(false)}
                 className="block text-center bg-navy hover:bg-navy-light text-white text-[15px] font-medium px-5 py-3 rounded-lg transition-all"
               >

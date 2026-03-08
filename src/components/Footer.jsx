@@ -20,9 +20,9 @@ export default function Footer() {
 
           {/* Links */}
           <div className="flex items-center gap-6 text-[13px]">
-            <a href="#features" className="text-gray-500 hover:text-gray-300 transition-colors">Features</a>
-            <a href="#pricing" className="text-gray-500 hover:text-gray-300 transition-colors">Pricing</a>
-            <a href="#early-access" className="text-gray-500 hover:text-gray-300 transition-colors">Early Access</a>
+            <a href="/#features" className="text-gray-500 hover:text-gray-300 transition-colors">Features</a>
+            <a href="/#pricing" className="text-gray-500 hover:text-gray-300 transition-colors">Pricing</a>
+            <a href="/#early-access" className="text-gray-500 hover:text-gray-300 transition-colors">Early Access</a>
           </div>
         </div>
 
