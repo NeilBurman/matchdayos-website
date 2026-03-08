@@ -1,0 +1,10 @@
+{
+  "name": "matchdayos-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Azure Functions API for MatchdayOS marketing site",
+  "dependencies": {
+    "@azure/data-tables": "13.3.0",
+    "@azure/communication-email": "1.0.0"
+  }
+}

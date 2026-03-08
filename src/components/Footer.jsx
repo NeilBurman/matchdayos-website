@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
           {/* Logo */}
           <div>
-            <a href="#" className="flex items-center gap-2">
+            <a href="/" className="flex items-center gap-2">
               <img src={logoIcon} alt="MatchdayOS" className="w-8 h-8 brightness-0 invert opacity-90" />
               <span className="text-white/90 font-semibold text-[15px] tracking-tight">
                 Matchday<span className="text-accent">OS</span>
@@ -30,9 +30,14 @@ export default function Footer() {
           <p className="text-[12px] text-gray-600">
             &copy; {new Date().getFullYear()} MatchdayOS. All rights reserved.
           </p>
-          <a href="mailto:hello@matchdayos.com" className="text-[12px] text-gray-600 hover:text-gray-400 transition-colors">
-            hello@matchdayos.com
-          </a>
+          <div className="flex items-center gap-4">
+            <a href="/privacy" className="text-[12px] text-gray-600 hover:text-gray-400 transition-colors">
+              Privacy Policy
+            </a>
+            <a href="mailto:hello@matchdayos.com" className="text-[12px] text-gray-600 hover:text-gray-400 transition-colors">
+              hello@matchdayos.com
+            </a>
+          </div>
         </div>
       </div>
     </footer>

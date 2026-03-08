@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import heroImage from '../assets/hero-image.webp'
 
 export default function Hero() {
+  const [imgError, setImgError] = useState(false)
   return (
     <section className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 lg:pt-40 lg:pb-28 overflow-hidden">
       {/* Background layers */}
@@ -53,14 +55,23 @@ export default function Hero() {
             {/* Glow behind image */}
             <div className="absolute -inset-4 bg-accent/6 rounded-3xl blur-2xl" />
             <div className="relative rounded-2xl overflow-hidden border border-border shadow-[0_4px_16px_rgba(15,39,68,0.06),0_24px_64px_rgba(15,39,68,0.08)]">
-              <img
-                src={heroImage}
-                alt="Youth grassroots football match in action"
-                className="w-full h-auto object-cover"
-                width={800}
-                height={534}
-                loading="eager"
-              />
+              {imgError ? (
+                <div className="w-full aspect-800/534 bg-navy/5 flex items-center justify-center">
+                  <span className="text-gray-400 text-sm">Image unavailable</span>
+                </div>
+              ) : (
+                <img
+                  src={heroImage}
+                  alt="Youth grassroots football match in action"
+                  className="w-full h-auto object-cover"
+                  width={800}
+                  height={534}
+                  loading="eager"
+                  fetchPriority="high"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  onError={() => setImgError(true)}
+                />
+              )}
               {/* Subtle green gradient overlay at bottom */}
               <div className="absolute inset-0 bg-linear-to-t from-navy/20 via-transparent to-transparent" />
             </div>

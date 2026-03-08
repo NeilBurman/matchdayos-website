@@ -1,16 +1,5 @@
 import { useState } from 'react'
 
-// ----------------------------------------------------------------
-// ENDPOINT CONFIGURATION
-// ----------------------------------------------------------------
-// Replace this URL with your actual form endpoint:
-//
-// Formspree:    https://formspree.io/f/YOUR_FORM_ID
-// Azure Func:   https://your-function-app.azurewebsites.net/api/early-access
-// SendGrid:     https://api.sendgrid.com/v3/marketing/contacts (requires auth header)
-//
-// See README or bottom of this file for integration details.
-// ----------------------------------------------------------------
 const FORM_ENDPOINT = '/api/early-access'
 
 const TEAM_OPTIONS = [
@@ -21,7 +10,10 @@ const TEAM_OPTIONS = [
   { value: '20+', label: '20+ teams' },
 ]
 
-const initialForm = { name: '', clubName: '', email: '', teamCount: '', message: '' }
+const initialForm = { name: '', clubName: '', email: '', teamCount: '', message: '', consent: false }
+
+// Stricter email: requires 2+ char TLD, no consecutive dots
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/
 
 function validate(form) {
   const errors = {}
@@ -29,10 +21,11 @@ function validate(form) {
   if (!form.clubName.trim()) errors.clubName = 'Club name is required'
   if (!form.email.trim()) {
     errors.email = 'Email is required'
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+  } else if (!EMAIL_REGEX.test(form.email.trim())) {
     errors.email = 'Enter a valid email address'
   }
   if (!form.teamCount) errors.teamCount = 'Please select a range'
+  if (!form.consent) errors.consent = 'You must agree to continue'
   return errors
 }
 
@@ -40,31 +33,54 @@ export default function EarlyAccess() {
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState('idle') // idle | submitting | success | error
+  const [errorMessage, setErrorMessage] = useState('')
 
   function handleChange(e) {
-    const { name, value } = e.target
-    setForm((prev) => ({ ...prev, [name]: value }))
+    const { name, value, type, checked } = e.target
+    setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }))
   }
 
   async function handleSubmit(e) {
     e.preventDefault()
+    if (status === 'submitting') return
     const fieldErrors = validate(form)
     if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors)
       return
     }
     setStatus('submitting')
+    setErrorMessage('')
     try {
+      const { consent: _consent, ...payload } = form
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 10000)
       const res = await fetch(FORM_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
+        signal: controller.signal,
       })
+      clearTimeout(timeout)
+      if (res.status === 429) {
+        setErrorMessage("You\u2019ve submitted recently. Please wait a minute and try again.")
+        setStatus('error')
+        return
+      }
+      if (res.status === 409) {
+        setErrorMessage("This email was already submitted. We\u2019ll be in touch soon.")
+        setStatus('error')
+        return
+      }
       if (!res.ok) throw new Error(res.statusText)
       setStatus('success')
       setForm(initialForm)
-    } catch {
+    } catch (err) {
+      setErrorMessage(
+        err.name === 'AbortError'
+          ? 'The request timed out. Please check your connection and try again.'
+          : 'Something went wrong. Please check your connection and try again.'
+      )
       setStatus('error')
     }
   }
@@ -126,9 +142,10 @@ export default function EarlyAccess() {
                       placeholder="e.g. Sarah Jones"
                       value={form.name}
                       onChange={handleChange}
+                      aria-describedby={errors.name ? 'ea-name-error' : undefined}
                       className={`${inputBase} ${errors.name ? 'border-red-400/60' : 'border-white/10 focus:border-accent/50'}`}
                     />
-                    {errors.name && <p className="mt-1 text-[12px] text-red-400">{errors.name}</p>}
+                    {errors.name && <p id="ea-name-error" className="mt-1 text-[12px] text-red-400">{errors.name}</p>}
                   </div>
                   <div>
                     <label htmlFor="ea-club" className="block text-[13px] font-medium text-gray-300 mb-1.5">
@@ -138,12 +155,14 @@ export default function EarlyAccess() {
                       id="ea-club"
                       name="clubName"
                       type="text"
+                      autoComplete="organization"
                       placeholder="e.g. Ringmer Rovers FC"
                       value={form.clubName}
                       onChange={handleChange}
+                      aria-describedby={errors.clubName ? 'ea-club-error' : undefined}
                       className={`${inputBase} ${errors.clubName ? 'border-red-400/60' : 'border-white/10 focus:border-accent/50'}`}
                     />
-                    {errors.clubName && <p className="mt-1 text-[12px] text-red-400">{errors.clubName}</p>}
+                    {errors.clubName && <p id="ea-club-error" className="mt-1 text-[12px] text-red-400">{errors.clubName}</p>}
                   </div>
                 </div>
 
@@ -161,9 +180,10 @@ export default function EarlyAccess() {
                       placeholder="you@club.co.uk"
                       value={form.email}
                       onChange={handleChange}
+                      aria-describedby={errors.email ? 'ea-email-error' : undefined}
                       className={`${inputBase} ${errors.email ? 'border-red-400/60' : 'border-white/10 focus:border-accent/50'}`}
                     />
-                    {errors.email && <p className="mt-1 text-[12px] text-red-400">{errors.email}</p>}
+                    {errors.email && <p id="ea-email-error" className="mt-1 text-[12px] text-red-400">{errors.email}</p>}
                   </div>
                   <div>
                     <label htmlFor="ea-teams" className="block text-[13px] font-medium text-gray-300 mb-1.5">
@@ -174,6 +194,7 @@ export default function EarlyAccess() {
                       name="teamCount"
                       value={form.teamCount}
                       onChange={handleChange}
+                      aria-describedby={errors.teamCount ? 'ea-teams-error' : undefined}
                       className={`${inputBase} ${!form.teamCount ? 'text-gray-500' : ''} ${errors.teamCount ? 'border-red-400/60' : 'border-white/10 focus:border-accent/50'}`}
                     >
                       {TEAM_OPTIONS.map((opt) => (
@@ -182,7 +203,7 @@ export default function EarlyAccess() {
                         </option>
                       ))}
                     </select>
-                    {errors.teamCount && <p className="mt-1 text-[12px] text-red-400">{errors.teamCount}</p>}
+                    {errors.teamCount && <p id="ea-teams-error" className="mt-1 text-[12px] text-red-400">{errors.teamCount}</p>}
                   </div>
                 </div>
 
@@ -195,21 +216,52 @@ export default function EarlyAccess() {
                     id="ea-message"
                     name="message"
                     rows={3}
+                    maxLength={2000}
                     placeholder="Tell us about your club or any specific challenges you face..."
                     value={form.message}
                     onChange={handleChange}
                     className={`${inputBase} border-white/10 focus:border-accent/50 resize-none`}
                   />
+                  <p className={`mt-1 text-[12px] ${form.message.length >= 1900 ? 'text-amber-400' : 'text-gray-500'}`}>
+                    {form.message.length}/2000
+                  </p>
                 </div>
+
+                {/* GDPR consent */}
+                <div className="flex items-start gap-3">
+                  <input
+                    id="ea-consent"
+                    name="consent"
+                    type="checkbox"
+                    checked={form.consent}
+                    onChange={handleChange}
+                    aria-describedby={errors.consent ? 'ea-consent-error' : undefined}
+                    className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/6 text-accent focus:ring-accent/40 shrink-0"
+                  />
+                  <label htmlFor="ea-consent" className="text-[12px] text-gray-400 leading-relaxed">
+                    I agree that MatchdayOS may store the information provided above to contact me about the early access programme.
+                    Data will be processed in accordance with our{' '}
+                    <a href="/privacy" className="text-accent hover:underline">privacy policy</a> and UK GDPR.
+                    You can request deletion at any time by emailing{' '}
+                    <a href="mailto:hello@matchdayos.com" className="text-accent hover:underline">hello@matchdayos.com</a>.
+                  </label>
+                </div>
+                {errors.consent && <p id="ea-consent-error" className="text-[12px] text-red-400 -mt-2">{errors.consent}</p>}
 
                 {/* Error banner */}
                 {status === 'error' && (
-                  <div className="flex items-center gap-2 bg-red-500/10 border border-red-400/20 text-red-300 text-[13px] rounded-xl px-4 py-3">
-                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <div className="flex items-start gap-2 bg-red-500/10 border border-red-400/20 text-red-300 text-[13px] rounded-xl px-4 py-3">
+                    <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                     </svg>
-                    Something went wrong. Please try again or email{' '}
-                    <a href="mailto:hello@matchdayos.com" className="underline">hello@matchdayos.com</a>.
+                    <span>
+                      {errorMessage || (
+                        <>
+                          Something went wrong. Please try again or email{' '}
+                          <a href="mailto:hello@matchdayos.com" className="underline">hello@matchdayos.com</a>.
+                        </>
+                      )}
+                    </span>
                   </div>
                 )}
 

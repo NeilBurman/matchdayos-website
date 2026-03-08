@@ -7,6 +7,7 @@
     <title>MatchdayOS – The Operating System for Grassroots Football Clubs</title>
     <meta name="description" content="Automate fixtures, simplify registrations and reduce admin for volunteer-run youth football clubs. MatchdayOS is the all-in-one platform for grassroots football operations." />
     <meta name="theme-color" content="#0F2744" />
+    <link rel="canonical" href="https://matchdayos.com" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/favicon.png" />
@@ -17,6 +18,9 @@
     <meta property="og:title" content="MatchdayOS – The Operating System for Grassroots Football Clubs" />
     <meta property="og:description" content="Automate fixtures, simplify registrations and reduce admin for volunteer-run youth football clubs." />
     <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:url" content="https://matchdayos.com" />
     <meta property="og:site_name" content="MatchdayOS" />
 
@@ -26,10 +30,41 @@
     <meta name="twitter:description" content="Automate fixtures, simplify registrations and reduce admin for volunteer-run youth football clubs." />
     <meta name="twitter:image" content="/og-image.png" />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "MatchdayOS",
+      "description": "The operating system for grassroots football clubs. Automate fixtures, simplify registrations and reduce admin.",
+      "url": "https://matchdayos.com",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "GBP",
+        "lowPrice": "45",
+        "highPrice": "75",
+        "offerCount": "3"
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "MatchdayOS",
+        "url": "https://matchdayos.com",
+        "email": "hello@matchdayos.com",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "hello@matchdayos.com",
+          "contactType": "customer service"
+        }
+      }
+    }
+    </script>
+
+    <!-- Fonts (self-hosted) -->
+    <link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin />
   </head>
   <body>
     <div id="root"></div>
