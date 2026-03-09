@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import heroImage from '../assets/hero-image.webp'
+import { ArrowRightIcon } from './Icons'
 
 export default function Hero() {
   const [imgError, setImgError] = useState(false)
@@ -37,9 +38,7 @@ export default function Hero() {
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent-dark text-white font-semibold px-7 py-3.5 rounded-xl text-[15px] transition-all btn-press shadow-[0_1px_2px_rgba(67,176,71,0.3),0_4px_12px_rgba(67,176,71,0.15)] hover:shadow-[0_1px_2px_rgba(67,176,71,0.4),0_8px_24px_rgba(67,176,71,0.2)]"
               >
                 Join the Early Access Pilot
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-                </svg>
+                <ArrowRightIcon />
               </a>
               <a
                 href="#features"
@@ -56,16 +55,16 @@ export default function Hero() {
             <div className="absolute -inset-4 bg-accent/6 rounded-3xl blur-2xl" />
             <div className="relative rounded-2xl overflow-hidden border border-border shadow-[0_4px_16px_rgba(15,39,68,0.06),0_24px_64px_rgba(15,39,68,0.08)]">
               {imgError ? (
-                <div className="w-full aspect-800/534 bg-navy/5 flex items-center justify-center">
+                <div className="w-full aspect-3/2 bg-navy/5 flex items-center justify-center">
                   <span className="text-gray-400 text-sm">Image unavailable</span>
                 </div>
               ) : (
                 <img
                   src={heroImage}
-                  alt="Youth grassroots football match in action"
+                  alt="Volunteer football coach using MatchdayOS on a tablet at a youth training session"
                   className="w-full h-auto object-cover"
-                  width={800}
-                  height={534}
+                  width={900}
+                  height={600}
                   loading="eager"
                   fetchPriority="high"
                   sizes="(min-width: 1024px) 50vw, 100vw"

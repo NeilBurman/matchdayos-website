@@ -41,9 +41,9 @@
   --color-navy: #0F2744;
   --color-navy-light: #1a3a5c;
   --color-navy-dark: #091a30;
-  --color-accent: #43B047;
-  --color-accent-dark: #3a9a3e;
-  --color-accent-light: #5bc45f;
+  --color-accent: #3a9a3e;
+  --color-accent-dark: #2e8533;
+  --color-accent-light: #43B047;
   --color-surface: #f8fafb;
   --color-surface-raised: #ffffff;
   --color-border: #e8ecf0;
@@ -72,7 +72,7 @@ body {
 
 /* Radial glow for hero / CTA sections */
 .glow-accent {
-  background: radial-gradient(600px circle at 50% 0%, rgba(67, 176, 71, 0.08), transparent 70%);
+  background: radial-gradient(600px circle at 50% 0%, rgba(58, 154, 62, 0.08), transparent 70%);
 }
 
 .glow-navy {
@@ -81,7 +81,7 @@ body {
 
 /* Gradient text utility */
 .text-gradient {
-  background: linear-gradient(135deg, #43B047 0%, #2d8a31 100%);
+  background: linear-gradient(135deg, #3a9a3e 0%, #2e8533 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ArrowRightIcon, CheckIcon } from './Icons'
 
 const FORM_ENDPOINT = '/api/early-access'
 const SUBMIT_TIMEOUT_MS = 10_000 // 10s — abort fetch if server doesn't respond
@@ -49,6 +50,12 @@ export default function EarlyAccess() {
     const fieldErrors = validate(form)
     if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors)
+      const firstErrorField = ['name', 'clubName', 'email', 'teamCount', 'consent'].find((f) => fieldErrors[f])
+      if (firstErrorField) {
+        const idMap = { clubName: 'ea-club', teamCount: 'ea-teams' }
+        const el = document.getElementById(idMap[firstErrorField] || `ea-${firstErrorField}`)
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
       return
     }
     setStatus('submitting')
@@ -118,9 +125,7 @@ export default function EarlyAccess() {
             {status === 'success' ? (
               <div className="mt-12 text-center py-12 px-6 rounded-2xl bg-accent/10 border border-accent/20">
                 <div className="w-14 h-14 mx-auto bg-accent/20 rounded-full flex items-center justify-center mb-5">
-                  <svg className="w-7 h-7 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                  </svg>
+                  <CheckIcon className="w-7 h-7 text-accent" strokeWidth={2} />
                 </div>
                 <h3 className="text-xl font-semibold text-white">Thank you for your interest</h3>
                 <p className="mt-2 text-gray-400 text-[15px]">
@@ -130,6 +135,16 @@ export default function EarlyAccess() {
             ) : (
               /* Form */
               <form onSubmit={handleSubmit} noValidate className="mt-12 space-y-5">
+                {/* Validation summary */}
+                {Object.keys(errors).length > 0 && (
+                  <div className="flex items-start gap-2 bg-red-500/10 border border-red-400/20 text-red-300 text-[13px] rounded-xl px-4 py-3" role="alert">
+                    <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                    </svg>
+                    <span>Please fix {Object.keys(errors).length === 1 ? 'the highlighted field' : `the ${Object.keys(errors).length} highlighted fields`} below.</span>
+                  </div>
+                )}
+
                 {/* Name + Club name row */}
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
@@ -288,9 +303,7 @@ export default function EarlyAccess() {
                   ) : (
                     <>
                       Register Interest
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-                      </svg>
+                      <ArrowRightIcon />
                     </>
                   )}
                 </button>

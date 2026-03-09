@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import logoIcon from '../assets/logo-icon.png'
+import { ArrowRightIcon } from './Icons'
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -70,9 +71,7 @@ export default function Navbar() {
                 className="bg-navy hover:bg-navy-light text-white text-[13px] font-medium px-4 py-2 rounded-lg transition-all btn-press inline-flex items-center gap-1.5"
               >
                 Request Early Access
-                <svg className="w-3.5 h-3.5 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-                </svg>
+                <ArrowRightIcon className="w-3.5 h-3.5 opacity-60" strokeWidth={2} />
               </a>
             </div>
           </div>

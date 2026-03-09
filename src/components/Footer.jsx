@@ -1,5 +1,7 @@
 import logoIcon from '../assets/logo-icon.png'
 
+const CURRENT_YEAR = new Date().getFullYear()
+
 export default function Footer() {
   return (
     <footer className="bg-navy-dark">
@@ -22,13 +24,14 @@ export default function Footer() {
           <div className="flex items-center gap-6 text-[13px]">
             <a href="/#features" className="text-gray-500 hover:text-gray-300 transition-colors">Features</a>
             <a href="/#pricing" className="text-gray-500 hover:text-gray-300 transition-colors">Pricing</a>
+            <a href="/#faq" className="text-gray-500 hover:text-gray-300 transition-colors">FAQ</a>
             <a href="/#early-access" className="text-gray-500 hover:text-gray-300 transition-colors">Early Access</a>
           </div>
         </div>
 
         <div className="mt-10 pt-8 border-t border-white/6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-[12px] text-gray-600">
-            &copy; {new Date().getFullYear()} MatchdayOS. All rights reserved.
+            &copy; {CURRENT_YEAR} MatchdayOS. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <a href="/privacy" className="text-[12px] text-gray-600 hover:text-gray-400 transition-colors">

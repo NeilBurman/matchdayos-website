@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Problem from './components/Problem'
@@ -6,8 +6,10 @@ import Solution from './components/Solution'
 import Features from './components/Features'
 import Pricing from './components/Pricing'
 import EarlyAccess from './components/EarlyAccess'
+import FAQ from './components/FAQ'
 import Footer from './components/Footer'
-import PrivacyPolicy from './components/PrivacyPolicy'
+
+const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'))
 
 function usePath() {
   const [path, setPath] = useState(window.location.pathname)
@@ -101,7 +103,9 @@ export default function App() {
       <Navbar />
       <main id="main-content" className="bg-white text-gray-900">
         {route === 'privacy' ? (
-          <PrivacyPolicy />
+          <Suspense fallback={<div className="pt-28 pb-16 text-center text-gray-400">Loading...</div>}>
+            <PrivacyPolicy />
+          </Suspense>
         ) : route === 'notFound' ? (
           <NotFound />
         ) : (
@@ -111,6 +115,7 @@ export default function App() {
             <Solution />
             <Features />
             <Pricing />
+            <FAQ />
             <EarlyAccess />
           </>
         )}
