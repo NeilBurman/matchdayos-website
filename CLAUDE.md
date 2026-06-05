@@ -18,16 +18,16 @@ Single-page React marketing site for MatchdayOS — a SaaS platform for grassroo
 **Stack**: React 19, Vite 7, Tailwind CSS 4 (using `@tailwindcss/vite` plugin — no `tailwind.config.js` file; config lives in `src/index.css` via `@theme`).
 
 **Page structure** (rendered in order by `App.jsx`):
-Navbar → Hero → Problem → Solution → Features → Pricing → EarlyAccess → Footer
+Navbar → Hero → Problem → Solution → Features → Pricing → FAQ → EarlyAccess → Footer
 
-All sections are in `src/components/`. There is no routing — it's a single-page site with anchor links for navigation (`#features`, `#pricing`, `#early-access`).
+All sections are in `src/components/`. Minimal client-side routing via `usePath()` hook in `App.jsx` — home (`/`) renders the marketing page, `/privacy` lazy-loads `PrivacyPolicy`, anything else shows a 404. Navigation within the homepage uses anchor links (`#features`, `#pricing`, `#faq`, `#early-access`).
 
 ## Design System
 
 Defined in `src/index.css` using Tailwind `@theme` directive:
 
 - **Primary**: `navy` (#0F2744), `navy-light`, `navy-dark`
-- **Accent**: `accent` (#43B047), `accent-dark`, `accent-light`
+- **Accent**: `accent` (#3a9a3e), `accent-dark` (#2e8533), `accent-light` (#43B047)
 - **Surfaces**: `surface` (#f8fafb), `surface-raised` (white)
 - **Borders**: `border` (#e8ecf0), `border-subtle` (#f0f2f4)
 - **Font**: Inter (self-hosted WOFF2 files in `public/fonts/`, `@font-face` declarations in `index.css`)
@@ -37,8 +37,10 @@ Custom CSS utilities in `index.css`: `.bg-grid`, `.glow-accent`, `.glow-navy`, `
 ## Key Conventions
 
 - Use Tailwind 4 canonical class names (e.g. `bg-white/4` not `bg-white/[0.04]`, `bg-linear-to-r` not `bg-gradient-to-r`, `shrink-0` not `flex-shrink-0`).
+- Shared SVG icon components live in `src/components/Icons.jsx` (`ArrowRightIcon`, `CheckIcon`) — use these instead of inline SVGs.
 - Brand assets are in `src/assets/` (logo-icon.png, logo-full.png, hero-image.webp). Static files (favicon, OG image) are in `public/`.
 - The EarlyAccess component contains a form that POSTs JSON to `FORM_ENDPOINT` (configurable constant at top of file, currently `/api/early-access`).
+- `PrivacyPolicy` is lazy-loaded via `React.lazy()` to keep it out of the main bundle.
 ## API (Azure Functions)
 
 The `api/` directory contains Azure Functions (Node.js, v2 runtime) deployed as managed functions on Azure Static Web Apps.
@@ -46,6 +48,12 @@ The `api/` directory contains Azure Functions (Node.js, v2 runtime) deployed as 
 - **`api/early-access/`** — POST endpoint for early access form. Validates input, stores lead in Azure Table Storage (`EarlyAccessLeads` table), sends email notification via Azure Communication Services.
 - Rate limiting (in-memory, per-IP, 5 req/min), duplicate email protection (1 min cooldown), 8KB payload limit.
 - Environment variables: `STORAGE_CONNECTION_STRING`, `ACS_EMAIL_CONNECTION_STRING`, `ACS_EMAIL_FROM`, `ACS_EMAIL_TO`.
+
+## Deployment
+
+- Hosted on Azure Static Web Apps with GitHub Actions CI/CD.
+- `staticwebapp.config.json` configures security headers (CSP, HSTS, COOP, COEP), cache headers for `/assets/*` and `/fonts/*` (immutable, 1 year), and SPA `navigationFallback`.
+- CI pipeline runs `npm audit --omit=dev --audit-level=moderate` for both root and `api/` packages.
 
 ## Security
 
